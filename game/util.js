@@ -7,7 +7,7 @@ const checkforWinner = dic => {
   return null
 }
 
-function winner(board) {
+export function winner(board) {
   const NS = [0, 1, 2]
   let outcome
   // check horizontal
@@ -76,4 +76,21 @@ const test = () => {
   console.log('O?', winner(oWins))
 }
 
-export default winner
+export const bad = (state, action) => {
+  if (action.player !== state.turn) {
+    return 'Sorry, not your turn!'
+  }
+  if (action.payload.position.length !== 2) {
+    return 'invalid input'
+  }
+  if (!validRange(action.payload.position)) {
+    return 'Please enter a range between 0-2'
+  }
+}
+
+const validRange = (arr) => {
+  const validation = arr.map(coord => {
+    return (coord < 0 || coord > 2) ? false : true
+  })
+  return (!validation[0] || !validation[1]) ? false : true
+}
