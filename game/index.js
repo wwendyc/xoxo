@@ -1,22 +1,39 @@
-import {Map} from 'immutable'
-
-let board = Map()
-const initialState = {board: board, turn: 'X'}
+import { Map } from 'immutable'
+import evaluateWinner from './util'
 
 export const MOVE = 'MOVE'
 
-export default function reducer(state = initialState, action) {
-  switch (action.type) {
-    case MOVE:
-      let turn = state.turn
-      const board = state.board.setIn(action.payload.position, turn)
-      turn === 'X' ? turn = 'O' : turn = 'X'
-      return {board, turn}
-    default:
-      return state
+const turnReducer = (state = 'X', action) => {
+  if (action.type === MOVE) {
+    return state === 'X' ? 'O' : 'X'
   }
+  return state
+}
+
+const boardReducer = (state = Map(), action) => {
+  if (action.type === MOVE) {
+    return state.setIn(action.payload.position, action.payload.player)
+  }
+  return state
+}
+
+const reducer = (state = {}, action) => {
+  const board = boardReducer(state.board, action)
+  console.log('new board', board)
+  const winner = evaluateWinner(board)
+
+  const newState = {
+    board,
+    winner,
+    turn: turnReducer(state.turn, action)
+  }
+
+  console.log(JSON.stringify(newState, undefined, 2))
+  return newState
 }
 
 export const move = (player, position) => {
-  return {type: MOVE, payload: {position, player}}
+  return { type: MOVE, payload: { position, player } }
 }
+
+export default reducer
